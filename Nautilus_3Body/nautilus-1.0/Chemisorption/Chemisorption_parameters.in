@@ -1,0 +1,13 @@
+!    Reaction                                                                                  EDiss(K)
+BCO                        ->  BC       BO                                     
+BOH                        ->  BO       BH  
+BCH                        ->  BC       BH
+BCH2                       ->  BCH      BH
+BCH3                       ->  BCH2     BH  
+BCH2                       ->  BC       BH2                                          
+BCH2                       ->  BC       BH         BH                                 
+BCH3                       ->  BH2      BC         BH                                 
+BCH3                       ->  BCH      BH         BH                                 
+BCH3                       ->  BCH      BH2                                          
+BCH3                       ->  BC       BH2        BH                                 
+

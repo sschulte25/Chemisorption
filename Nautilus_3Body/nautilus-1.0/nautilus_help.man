@@ -1,0 +1,866 @@
+NAUTILUS HELP
+v0.
+
+Clément Druard
+
+09/05/11
+
+######################################################
+nls phys l 477 dans evolve
+
+
+TODO --
+zxpliquer ce que contient chaque fichier
+######################################################
+
+
+
+
+
+
+I - Description of all the useful variables used by the main program and the subroutines
+
+II -	Nautilus description (step by step)
+
+II - Description of the modules called by Nautilus
+
+IV - Description of the subroutines used in Nautilus
+
+
+
+
+
+
+##############################################################################################################
+==============================================================================================================
+I - useful variables :
+#all variables not explicited here are routine variables (i,j,k,sums ...)#
+==============================================================================================================
+##############################################################################################################
+
+==header== ('global' variables)
+nb_reactions							number of reactions in the network
+nb_species							number of species in the network
+nb_gaseous_species							number of gas phase species
+nb_surface_species							number of grain sticked species
+NB_PRIME_ELEMENTS							number of different elements in the network
+nitype							number of reaction types
+nopmax						
+
+rxmin							
+
+RELATIVE_TOLERANCE									relative tolerance (solver parameter)
+
+R					tab(nb_reactions)
+XK					tab(nb_reactions)
+XNI					tab(nb_species)
+XN0					tab(nb_species)
+CTS					tab(nb_species)
+
+DXDT				tab(nb_species)
+DXDTP				tab(nb_species)
+DXDTN				tab(nb_species)
+
+ESUM				tab(NB_PRIME_ELEMENTS)
+EMERR				tab(NB_PRIME_ELEMENTS)
+
+DENS				tab(nopmax)
+AV					tab(nopmax)
+TIMS				tab(nopmax)
+
+XNOP				tab(nb_species:nopmax)
+CTSOP				tab(nb_species:nopmax)
+
+DXDTOP				tab(nb_species:nopmax)
+
+EQP					tab(6:nopmax)
+
+
+CHARGE
+TATOM
+CSUM
+TSUM
+CERR
+TERR
+DXDTS
+
+--gas phase parameters / grain parameters--   
+initial_gas_density									initial gas density
+initial_gas_temperature									initial gas temperature
+initial_dust_temperature									initial dust temperature
+initial_dtg_mass_ratio									original dust-to-gas mass ratio
+AV_NH_ratio									Av/NH ratio = 5.34D-22 . (initial_dtg_mass_ratio/0.01)
+sticking_coeff_neutral									sticking coeff for neutral species
+sticking_coeff_positive									sticking coeff for positive species
+sticking_coeff_negative									sticking coeff for negative species
+grain_radius										grain radius (cm)
+GRAIN_DENSITY									mass density of grain material
+INITIAL_VISUAL_EXTINCTION									initial visual extinction
+ZETA
+CR_IONISATION_RATE									cosmic ray ionisation rate
+XNTI
+CRA										scale fac for CR radiation field, ITYPE 17
+CRB										scale fac for CR radiation field, ITYPE 18
+UV_FLUX									scale factor for UV radiation field
+UVGRA
+LAYERS									number of monolayers for ITYPE 17-20 
+SITE_SPACING										site spacing
+SITE_DENSITY										site density
+nb_sites_per_grain										number of sites per grain
+ACT										grain rxn activation energy constant
+TSMAX									peak grain temp (CR heating)
+CRT										duration (s) of peak grain T
+CRFE									Fe-ion--grain encounter s-1 grain-1 (for 0.1 micron grain)
+EBFAC									ratio Eb(I):Ed(I) (excludes H,H2); -ve means use given values
+ARRK									a-coefficient for RRK-style formation-desorption, it is the ratio of the surface-molecule bond-frequency to the frequency at which energy is lost to the grain surface (see Garrod et al. 2007)
+     
+
+
+--network data--
+SPEC				tab(nb_species)			chemical species
+ICG					tab(nb_species)			charge carried by the species
+species_composition				tab(NB_PRIME_ELEMENTS:nb_species)    number of elements that compose the species 
+											(H,He,C,N,O,Si,S,Fe,Na,Mg,Cl,P)
+SYMBOLUO			tab(8:nb_reactions)		reactions. 3 reagents + 5 products (unordered)
+SYMBOL				tab(8:nb_species)		the same tab as symboluo but itype ordered
+AUO					tab(nb_reactions)			k(T)= AUO . (T/300)^BUO . exp(-CUO/T) (unordered)
+BUO					tab(nb_reactions)			"
+CUO					tab(nb_reactions)			"
+A					tab(nb_reactions)			the same as Auo, Buo, Cuo but ordered like symbol
+B					tab(nb_reactions)			"
+C					tab(nb_reactions)			"
+itypeUO				tab(nb_reactions)			type of the reaction (unordered)
+itype				tab(nb_reactions)			the same as itypeuo but ordered like symbol
+											0		gas/grain reaction
+											1		CR-induced photo ionization/dissociation
+											2-12	gas phase reaction
+											13		UV-induced photo ionization/dissociation
+											14		grain surface reaction
+											15		thermal evaporation
+											16		CR induced desorption
+											17-18	on grain CR-induced photodissociation
+											19-20	on grain UV-induced photodissociation
+											66-67	CO photodesorption
+											99		adsorption/accrection
+
+IRXSTA				tab(0:nitype-1)		starting lines of each reaction type
+IRXFIN				tab(0:nitype-1)		ending lines of each reaction type
+
+YH										char label for H
+YJH										char label for JH
+YJH2									char label for JH2
+YH2										char label for H2
+YHE										char label for He
+YHEP									char label for He+
+YE										char label for E
+YGRAIN									char label for GRAIN0
+YCO										char label for CO
+
+indCO									line index of CO
+indH2									line index of H2
+
+AWT					tab(nb_species)			species' mass (in amu)
+
+
+--H2 and CO shielding factors--
+NL1										longueur du fichier gg_H2_Photodiss.d
+N1H2				tab (NL1)			H2 shielding factor
+T1H2				tab (NL1)			"
+NL2										longueur des 2 premières colonnes de gg_CO_Photodiss.d (NCO et teta_CO)
+NL3										longueur des 4 dernières colonnes du fichier gg_CO_Photodiss.d
+N2CO				tab (NL2)			NCO (cm-2)
+T2CO				tab (NL2)			teta_CO
+N2H2				tab (NL3)			NH2 (cm-2)
+T2H2				tab (NL3)			teta_H2
+AV2					tab (NL3)			Av
+T2AV				tab (NL3)			teta_Av
+
+IEQP				tab (4:nopmax)			
+IORDTM				tab (nopmax)			
+INUM				tab (nb_reactions)				
+ICRTBL				tab (nb_species,nb_reactions)		
+ICROCC				tab (nb_species,nb_reactions)						
+ICRNUM				tab (nb_species)				
+ORDSP				tab (nb_species)
+
+
+
+--output times--
+iptstore								global variable for the current sppatial point (called in nautilus)
+NT
+ITFLAG
+OUTPUT_PER_DECADE									outputs per decade  2  8  64  128 (Only without diffusion)
+DP
+NDP
+IODR
+IREFSP
+ISORD
+START_TIME									first output time, after zero (yrs)
+STOP_TIME									last output time (yrs)
+wstep									outputs every wstep timesteps
+wstepr									Outputs every WSTEPR timesteps for the rate coefficients
+Istep
+Irateout								spatial points for the rate output
+ALPHA
+BFAC
+NF
+A1
+B1
+C1
+A2
+B2
+C2
+
+
+IDENS
+ITEMP
+
+--switches--
+IS_GRAIN_REACTIONS									accretion, grain surface reactions
+GRAIN_TUNNELING_DIFFUSION									grain tunneling diffusion 0=thermal; For H,H2: 1=QM1 (see Watson 1976); 2=QM2 (see Hasegawa & Herbst 1992); 3=choose fastest between QM1 QM2 and thermal
+CONSERVATION_TYPE									0=only e- conserved; 1=elem #1 conserved, 2=elem #1 & #2, etc
+IMODH									1=modify H; 2=modify H,H2, 3=modify all, -1=H+H only
+IREAD									0=read initial abundances from nls_control / x=from nls_init
+IPOUT
+IPMON
+IPLOT
+IPDET
+IPRXN
+IPORD
+IS_ABSORPTION									H2 and CO self shielding
+
+      COMMON/RCOEFF/XK
+
+testjac									testing the number of non-zero jacobian elements
+nb_nonzeros_values									number of non zero jacobian elements (per line)
+
+! For IA and JA
+
+IA					tab (nb_species+1)
+
+
+==unitvar==
+see fileset for the corresponding units of each datafile
+
+
+==called in nautilus==
+lrw												
+
+IT										number of time loops (typically 0.1STOP_TIME/zdt with a constant zdt)
+
+T										local time
+TIME									global time
+TIN										store the curent time T for 1D calculation
+zdt										diffusive timestep
+
+ZXN					tab(nb_species:nptmax)	fractional abundances (space point dependant)				
+
+JA					allocatable	tab		array
+liw										size of the JA array
+
+TAU										TAU1D
+XNT										total density of H atoms (both H and H2)
+TEMP									gas temperature
+DTEMP									dust temperature
+
+==called in MESH==
+nptmax									number of space points
+ipts									number of the considered space point
+zspace				tab(nptmax)			space variable (used in zaspace)
+zaspace				tab(nptmax)			space variable (scale of the computing box Hsize)
+zstepsize								Spatial resolution
+
+
+==called in INITIAL==
+KSUM									number of elements in the species
+PRIME_ELEMENT_IDX				tab(NB_PRIME_ELEMENTS)			corresponding lines (in species_composition) of the NB_PRIME_ELEMENTS elements
+ISPE									corresponding line (in species_composition) of the electron
+Mass				tab(NB_PRIME_ELEMENTS)			mass number (A) of the NB_PRIME_ELEMENTS elements									
+
+
+==called in GRAINRATE==
+thermodynamic, quantum and kinetic data
+
+GSPEC				tab(nb_species)			on-grain chemical species (as given in NGR)
+INT1				tab(nb_reactions)			temporary buffer for mass number (in amu)
+SMASS				tab(nb_species)			mass number (in amu)
+SMA										truncation of SMASS
+REA1				tab(nb_species)			temporary buffer for ED binding energy for physical adsorption (in K)
+ED					tab(nb_species)			ED binding energy for physical adsorption (in K) (see Hasegawa & Herbst, 1992)
+REA2				tab(nb_species)			temporary buffer for Eb potential energy barrier height between adjacent surface potential energy wells (in K)
+EB					tab(nb_species)			Eb potential energy barrier height between adjacent surface potential energy wells (in K) (see Hasegawa & Herbst, 1992)
+REA3				tab(nb_species)			temporary buffer for dEb breadth in energy between two surface wells as seen for the quantum mechanical tunneling effect (in K)
+DEB					tab(nb_species)			dEb breadth in energy between two surface wells as seen by the quantum mechanical tunneling effect (in K) (see Watson 1976)
+REA4				tab(nb_reactions)			temporary buffer for dHf heat of formation of the associated compound 
+DHF					tab(nb_species)			dHf heat of formation of the associated compound
+NEA										number of on-grain reactions with given activation energy in NGR
+
+STICK									called to calculate the sticking coefficient
+NGS										number of on-grain species in NGR 
+
+GSREAD				tab(5,nb_reactions)		on-grain reactions (2 reagents + 3 products)
+REA5				tab(nb_reactions)			temporary buffer for activation energies of the corresponding on-grain reactions
+EA					tab(nb_reactions)			activation energies of the corresponding on-grain reactions
+
+CHF					tab(nb_species)			SQRT(2.0d0*BOLTZ/PI/PI/AMU * SITE_DENSITY*ED(I)/SMA) characteristic vibration frequency for the adsorbed species as from a harmonic oscillator hypothesis (Hasegawa & Herbst 1992)
+RQ1					tab(nb_species)			(dEB.BOLTZ) / (4.HBAR.nb_sites_per_grain) quantum mechanical tunneling rate (Watson 1976)
+RQ2					tab(nb_species)			CHF / nb_sites_per_grain.EXP(-2.SITE_SPACING / HBAR.(2.AMU.SMA.BOLTZ.EB)^1/2) quantum mechanical tunneling rate (Hasegawa & Herbst 1992)
+
+jsp1				tab(nb_reactions)			first reagent of the reaction (line of)
+jsp2				tab(nb_reactions)			second reagent of the reaction (line of)
+REDMAS									reduced mass of the products
+XJ					tab(nb_reactions)			branching ratio
+NPATH									counter for the branching ratio
+NEVAP									counter for the evaporation fraction
+
+DHFSUM									- enthalpy of reaction (sum(dHf_reagents) - sum(dHf(products). The sign is here to coincide with the value of EA
+SUM1									highest product binding energy ED
+SUM2									probability of desorption (see Garrod et al. 2007), probability for an energy E>ED to be present in the bond, considering the energy of formation released in the reaction
+ATOMS									number of atoms composing the first product
+EVFRAC									fraction of reactions resulting (or not) in desorption (see Garrod et al. 2007)
+BADFLAG									test how many species in one reaction have dHf set to -999.0
+
+ACT1				tab(nb_reactions)			exp(-ACT1) is the probability for the reaction to happen upon an encounter (see Hasegawa&Herbst 1992)
+
+cond									pi . r^2 . (8.kB / pi.amu)^1/2
+CONDSP				tab(nb_species)			Cond . STICK/(AWT(I))^1/2
+
+
+==called in START==
+TOUT									output time
+
+NS0										number of initial abundances given (H, He, ...)
+XS0					tab(nb_species)			species which have been given an initial fraction abundance different from 0 (see NCON)
+XN0					tab(nb_species)			initial fraction abundance (as read in NCON)
+XNmin									default minimum initial fraction abundance
+XN					tab(nb_species)			initial fraction abundance (as listed in NJR or NINI)
+INITIAL_ELEMENTAL_ABUNDANCE				tab(NB_PRIME_ELEMENTS)			initial fraction abundance of the elements
+mean_molecular_weight									mean molecular weigh (cgs)
+GTODN									grain abundance
+
+SREAD				tab(nb_species)			species abundance (as listed in NINI)
+Y					tab(nb_species)			Y(:)=XN(:)
+
+
+==called in CONSERVE==
+elemental_abundance				tab(nb_species)			summed abundance of the elements (to set the conservation law)
+ChaSum									summed charge of all the elements considering abundances
+
+
+==called in phys_1D==
+TEMP1D				tab(nptmax)			gas temperature in a 1D physical strucure TEMP1D(ipts) = TCOLD + (TWARM-TCOLD) * 0.5*(1.+tanh((abs(zspace(ipts))-2.*Hcold)/(Hcold/3.d0)))		
+DTEMP1D				tab(nptmax)			dust temperature in a 1D physical structure
+TAU1D				tab(nptmax)			visual extinction in a 1D physical structure
+DENS1D				tab(nptmax)			gas density in a 1D physical structure
+
+Omega2									vertical gravity (for a disk model) Omega2 = GRAV.MCENTER/(DISTR)^3
+Mcenter									Central mass (for a disk model)
+Distr									Radial distance (for a disk model) (cm)
+
+TCOLD									DM TAU parametric disk model
+TWARM									T100 . (DISTR / 100.AU)^(-3/2)
+T100									temperature at 10 AU
+Hcold									height scale sqrt( kB . TCOLD / (mean_molecular_weight.AMU.Omega2) )
+
+Hsize									Half size of the computing box
+
+Denb_species									Maximum density of the profile 0.8 . (DISTR/100AU)^(-1.5) / (mean_molecular_weight.amu)/Hcold /sqrt(2pi)
+
+KFACTOR									AV_NH_ratio  
+HTAU									sqrt(boltz*temp1D(1)/(mean_molecular_weight*amu*Omega2))
+NHEST									2. * DENS1D(1) * HTAU * sqrt(2.d0)*exp(-(Hsize/HTAU/sqrt(2.d0))**2)/((Hsize/HTAU/sqrt(2.d0))+sqrt((Hsize/HTAU/sqrt(2.d0))**2+2.d0))
+TAUEST									TAUEST = NHEST * KFACTOR
+ld1d				tab(nptmax)
+UV100
+TAUBC									Av at the edge of the computing box
+
+
+==called in diffusion_setup==
+diffty									Turbulent diffusivity
+idiff									Diffusivity flag
+DIFF1D				tab(nptmax)			1D diffusivity profile
+
+
+==called in CHEMSETUP==
+NSP1									dummy species (line of a blank species)
+SPEC2				tab(nb_species+1)		chemical species (same as SPEC but with NSP1 at the end)
+REACT				tab(nb_reactions,7)		same as SYMBOL but with the lines of SPEC2 instead of species
+
+
+==called in EVOLVE==
+IWORK				tab(liw)
+RWORK				tab(lrw)
+DUMMYPDJ			tab(nb_species)
+DUMMYY				tab(nb_species)			dummy Y tab
+IDUMMY
+
+itol
+itask
+istate
+iopt
+mf
+atol
+satol				tab(nb_species)
+
+NNZ
+
+
+==called in set_constant_rates==
+T300									TEMP/300.D+0
+TI										1.0d00/TEMP
+TSQ										SQRT(TEMP)
+
+nsta									starting line of the ITYPE=2-12 reaction group
+nfin									ending line of the ITYPE=2-12 reaction group
+
+TINDIF				tab(nb_species)			thermal diffusion rate (s-1)
+TINEVA				tab(nb_species)			evaporation rate (s-1)
+
+
+==called in set_dependant_rates==
+TETABIS									selfshielding parameter
+TETABIS1								selfshielding factor
+TETABIS2								"
+TETABIS3								"
+NCO										column density (for selfshielding)
+NH2										"
+ZNH2				tab(nptmax)			1D column density (for self shielding)
+ZNCO				tab(nptmax)			"
+XNH2
+XNCO
+
+TINACC				tab(nb_species)			accretion rate (for ITYPE 99 reactions)
+
+ACTIV									activation energy barrier multiplier EA/DTEMP
+BARR									activation energy barrier BARR=EXP(-ACTIV)
+MONLAY
+
+IMOD1									=1 or to if the first reagent is JH or JH2
+IMOD2									=1 or to if the second reagent is JH or JH2
+
+YMOD1									modified abundance according to the evaporation and accreation rate
+YMOD2									"
+
+RDIF1				tab(nb_reactions)			thermal or tunneling hopping diffusion parameter for the first reagent
+RDIF2				tab(nb_reactions)			thermal or tunneling hopping diffusion parameter for the second reagent
+DIFF									total diffusion parameter (?) RDIF1 + RDIF 2
+
+MONLAY									LAYERS*nb_sites_per_grain/GTODN
+
+
+==called in MODIF==
+EX1					tab(nb_reactions)			TINEVA/TINACC for the first reagent
+EX2					tab(nb_reactions)			TINEVA/TINACC for the second reagent
+
+PICK									
+TESTREF1								
+TESTREF2								
+TESTNUM									
+
+##############################################################################################################
+==============================================================================================================
+II - nautilus
+==============================================================================================================
+##############################################################################################################
+
+call FILESET
+call READINPUT
+
+The number of non zero values is checked with the testjac flag (why or how remains unclear to me... )
+
+call MESH
+call INITIAL
+	-> call GRAINRATE
+call START(TOUT)
+	-> call CONSERVE(Y)
+call phys_1D
+	-> call diffusion_setup
+call WRITESPEC
+
+initialize ZXN with the values of XN
+
+allocate the JA array
+
+time loop (from 0 to 90% of the final time STOP_TIME)
+	call ztimestep(zdt)
+	write in NERR the associated iterations eand time in years
+	
+	spatial loop (from 1 to nptmax)
+		store abundances ZXN for a spatial point in Y and XN
+		call evolve		
+			-> call set_constant_rates(DUMMYY)
+			-> call get_jacobian(DUMMYY,IDUMMY,DUMMYPDJ)
+			-> call shieldingsetup
+			-> call set_constant_rates(Y)
+			-> call initialize_work_arrays
+			-> call dlsodes(fchem,nb_species,y,t,tout,itol,RELATIVE_TOLERANCE,satol,itask,istate,iopt,rwork,lrw,iwork,liw,jac,mf) 
+			-> call CONSERVE(Y)
+	
+
+			-> external FCHEM
+				-> call set_dependant_rates(Y)
+					-> call MODIF(J,IMOD1,IMOD2,BARR,YMOD1,YMOD2)
+				-> call FCHEMVW(N,Y,YP)
+			-> external JAC
+				-> call get_jacobian(Y,J,PDJ)
+
+##############################################################################################################
+==============================================================================================================
+III - modules
+==============================================================================================================
+##############################################################################################################
+
+==nls_header_mod.f90==
+	--header--				declarations
+							constants
+
+	--unitvar--				declarations and affectations
+
+
+
+##############################################################################################################
+==============================================================================================================
+IV - subroutines (in order of appearance, with the file they are written in)
+==============================================================================================================
+##############################################################################################################
+
+=========FILESET=========================================				nautilus.f90
+!!open data-files
+!corresponding units are given by the UNITVAR module
+
+NERR=6
+NINF=12
+NORD=15
+NCON2=25
+NOUT2=35
+NORD2=45
+
+NCON		5			nls_control.d					physical and chemical parameters of the system
+NMOD		8			nlso_mod.d						blank file (?)
+NSP			4			nlso_spec.d						list of the species included in the model
+NGR			10			nls_surf_input.d				thermodynamical, adsorption and diffusion parameters
+NJR			9		gg_react_osu_03_2008.d				network used to compute the evolution of the abundances
+				nls_react_kida_2010-12-5.d
+NTAI		13			nlso_tail.d						final abundances of the species
+NINI		14			nls_init.d						initial abundances of the species
+CODIS		16			gg_CO_Photodiss.d				?
+H2DIS		17			gg_H2_Photodiss.d				?
+
+
+=========READINPUT=======================================				nls_io.f90
+!!subroutine to save every parameters and values from the datafiles
+
+read parameters values from nls_control.d (NCON)
+read ODE parameters from nls_control.d (NCON)
+read CO and H2 shielding factors (H2DIS, CODIS)
+read species and reaction from the database file (NJR)
+reorder reactions by type
+
+
+=========MESH============================================				nls_mesh.f90
+!!build the spatial mesh of 1D integration
+
+
+=========INITIAL=========================================				nautilus.f90
+!! initialization of elemental/chemical quantities and characteristics
+! the "lines" called here are the lines of the network file NJR itself (as read and stored by READINPUT)
+
+calculate the number of elements in each chemical species and then check for gas phase neutral monoatomic species (i.e. an element)
+if the Xth element is found line Y, it marks the number line in the Xth column of PRIME_ELEMENT_IDX (then stop when all elements have been found)
+mark the line number of the electron in ISPE
+Re-arrange order of elements to match species_composition columns (reactions file), the first element is H, then He, then ...
+
+set elements' masses (in amu) of the species_composition elements in amu
+
+set species' masses (in amu) by calculation of the total mass number of the species in AWT
+	for the electron AWT = 1/1836 in amu
+	for the grains (neutral and charged) AWT=(4/3).pi.(Rd)^3 . GRAIN_DENSITY in amu
+
+initialize the Av/NH ratio AV_NH_ratio
+
+save the start and ending lines of each ITYPE group (type of reaction) in IRXSTA and IRXFIN (in order not to read the entire NJR database file each time)
+
+save the lines of H2 and CO into INDH2 and INDCO
+
+calculate the number of sites per grain nb_sites_per_grain with the density of sites per grain and the surface of the grain
+
+initialize the reaction rates by calling the GRAINRATE subroutine
+
+
+========GRAINRATE========================================				nautilus.f90
+!!compute surface info (thermodynamic, quantum and kinetic data) from datafiles
+! COND is used to calculate R_acc = (sigma_d) * <v_i> * n_i * n_d
+! Uses 'Mean' Maxwellian speed, rather than RMS (is this justifiable?)
+
+evaluate the sticking coefficient and accretion rate factor for each species
+verify the charge of each species (+,-,0) and associate the species with the sticking value defined in control.d
+set the sticking coefficient of specific "species" (grains, elctron, proton, adsorbed species...) as 0
+
+save thermodynamic and energetic data for the on-grain species and reactions from NGR. Store it in GSPEC INT1 REA1 REA2 REA3 REA4 & GSREAD REA5 then in SMASS ED EB dEB dHf EA
+for species other than JH and JH2, EB = EBFAC.ED with EBFAC approximatively equal to 0.3-0.5 (Hasegawa&Herbst 1992)
+if a reaction in the network NJR matches a similar reaction in NGR, rather takes the NGR data for activation energy of reactions that product or use on-grain sepcies
+
+
+! Set up constants, quantum rate info
+calculate characteristic frequencies CHF and quantum tunneling rates for on-grain species which are in NRG (which have been assigned surface information)
+RQ1 see Watson 1976
+RQ2 see Hasegawa & Herbst 1992
+
+for surface ractions (ITYPE=14) 
+get the lines of the first two reagents of each reaction
+calculate the branching ratio by verifying the similarity between the set of reagents of the itype=14 reactions
+calculate the evaporation fraction in the same way (see Garrod,Wakelam&Herbst 2007)
+calculate the enthalpy of reaction and convert it from kcal/mol to J/reaction. add the activation energy EA
+calculate the probability of desorption SUM2 by applying Rice-Ramsperger-Kessel theory (see Garrod et al. 2007)
+calculate the fraction of reactions resulting in desorption (see Garrod et al. 2007)
+set the value of EVFRAC by the deduction of all the previous calculations
+for the reactions producing on-grain species, EVFRAC=1-EVFRAC (EVFRAC is now the fraction of reaction NOT resulting in desoprtion)
+for the species with a DHF lower or equal to -999 (set in NGR), the EVFRAC is 0
+calculate then XJ the branching ratio for ITYPE=14 reactions
+calcualte the quantum activation energy ACT1
+
+for CR desoption ractions (ITYPE=16)
+set the branching ratio XJ to 0 if the mass number of the product is 0 (for safety)
+
+for accretion reactions (ITYPE=99)
+save tag of resultant grain surface species
+
+! Zero dummy H2 formation rxns, if necc.
+
+
+=========START===========================================				nautilus.f90
+(TOUT)
+!! initialise the abundances and build an element conservation rule
+
+initialise times
+set initial abundances of the species specified in NCON
+compute elemental abundances from the previous date
+recompute the dust to grain mass initial_dtg_mass_ratio to remove He
+calculate the mean molecular weight used for the diffusion in disks
+calculate the grain abundance with the mass of 1 grain and initial_dtg_mass_ratio
+
+if IREAD is set to something else than 0, read the species abundances in nls_init.d NINI
+check the if the species in NINI are listed in the same order as in NJR (prompt an error message if not)
+
+Call CONSERVE
+
+
+========CONSERVE=========================================				nautilus.f90
+(Y)
+
+prevent too low abundances by setting the value to 1.d-99 if it's below
+calculate the electron total abundance (electron, ions, grains) CHASUM and set it to a minimum if it's too low
+set a conservation law of the elements in the species (if selected with CONSERVATION_TYPE > 0)
+check the conservation of the elements by calculating the relative difference
+
+
+========phys_1D==========================================				nls_phys_1D
+!!build a 1D physical structure of the object
+! This parametric disk model overwrites some of the parameters defined in gg_control_1D and gg_control
+! HSIZE, DEnb_species, UV_FLUX, UVGRA, TAUBC
+
+if nptmax is not 0
+set the physical parameters of the model (disk model ...), like tempreatures or size of the box
+call MESH
+Estimate DEnb_species using the inner gaussian (considered to be dominant in the sigma) and the observed sigma (0.8 g cm-2 at 100 AU with a 1.5 power law)
+Calcultate the gas temperature set the dust temperature as equal
+
+!compute the density DENS1D through hydrostatic equilibrium using 1st order Euler
+
+! Computation of an estimated TAUBC using and erf function
+! If T is constant outside, rho has a gaussian tail
+! Hsize is usually larger than the true scale height
+! We use an approximated expression for the erf function
+! cf "Handbook of mathematical functions" inequality 7.1.13
+
+calculate TAUBC
+
+write physical outputs in a separate file
+
+call diffusion_setup
+
+
+========diffusion_setup==================================				nls_diffusion.f90
+!! Computes the value of the diffusion coefficient (and its variations in space)
+
+set the diffusion type = the values of DIFF1D (no diffusion, constant diffusivity, alpha diffusivity)
+
+
+========WRITESPEC========================================				nls_io.f90
+!!write species name/index correspondance in NSP file
+
+
+========CHEMSETUP========================================				nls_odes.f90
+!!initialize the reactants and products
+
+create a tabular REACT, identical to SYMBOL with line index instead of species
+
+
+========ztimestep========================================				nls_diffusion.f90
+!!set the value of the time step
+
+create a log spacing ZDT of the output times (for advanced times) and a year timestep ZDT for smaller times when there is no diffusion
+with diffusion ZDT is set to the "smallest timescale you can think of"
+
+
+========EVOLVE===========================================				nautilus.f90
+(T,Y,TOUT,itol,atol,itask;istate;iopt;mf;liw;lrw)
+!!...........
+
+create work arrays
+
+! If testjac is 1, print non zero elements per column of the Jacobian (Done in odes/get_jacobian)
+call set_constant_rates(DUMMY)
+
+
+
+
+
+
+
+
+
+
+
+
+
+call get_jacobian(DUMMYY,IDUMMY,DUMMYPDJ)
+call shieldingsetup
+
+! Adaptive absolute tolerance to avoid too high precision on very abundant species,
+! H2 for instance. Helps running a bit faster
+call set_constant_rates(Y)
+! Feed IWORK with IA and JA
+call initialize_work_arrays(Y)
+call dlsodes(fchem,nb_species,y,t,tout,itol,RELATIVE_TOLERANCE,satol,itask,istate,iopt,rwork,lrw,iwork,liw,jac,mf) 
+!Whenever the solver fails converging, print the reason.
+! cf odpkdmain.f for translation
+CALL CONSERVE(Y)
+
+return XN=Y
+
+
+========set_constant_rates===========================================				nautilus.f90
+(Y)
+!!compute the rate constants for ITYPE=0-12, 15, 16, 66 and 67
+
+for ITYPE=0 reactions
+set XK(J)=A(J)*(T300**B(J))*GTODN
+
+for ITYPE=1 reactions
+set XK(J)=A(J)*CR_IONISATION_RATE
+
+for ITYPE=2-12 reactions
+XK(J)=A(J)*(T300**B(J))*EXP(-C(J)*TI)
+
+if there is accretion and on-grain eactions (IS_GRAIN_REACTIONS switch) :
+	set diffusion and evaporation rates
+
+	for ITYPE=15 reactions
+	set XK(J)=A(J)*XJ(J)*TINEVA(JSP1(J))
+
+	for ITYPE=16 reactions
+	set XK(J)=A(J)*XJ(J)*CHF(JSP1(J))*CRFE*CRT*EXP(-ED(JSP1(J))/TSMAX)
+
+for ITYPE=66 reactions
+set XK(J)=A(J)/SITE_DENSITY*UV_FLUX*1.d8*exp(-2.*TAU) 
+
+for ITYPE=67 reactions
+set XK(J)=A(J)/SITE_DENSITY*1.d4
+
+when dust is turned off, zero all dust rates
+
+
+========get_jacobian============================================				nls_odes.f90
+========SHIELDINGSETUP===================================				nautilus.f90
+========initialize_work_arrays======================================				nls_odes.f90
+========DLSODE===========================================               opkdmain.f
+Livermore Solver for Ordinary Differential Equations.
+           DLSODE solves the initial-value problem for stiff or
+           nonstiff systems of first-order ODE's,
+              dy/dt = f(t,y),   or, in component form,
+              dy(i)/dt = f(i) = f(i,t,y(1),y(2),...,y(N)),  i=1,...,N.
+
+
+
+
+
+
+
+
+========FCHEM============================================				nautilus.f90
+(N,T,YP)
+
+call set_dependant_rates(Y)
+call FCHEMVW(N,Y,YP)
+
+========set_dependant_rates==========================================				nautilus.f90
+(Y)
+!!compute the rate constants for ITYPE=13,14,17,18,19,20,99 including selfshielding effetcs
+
+for ITYPE=13 reactions
+set XK(J)=A(J)*EXP(-C(J)*TAU)*UV_FLUX
+modify the H2 and CO photodissociation if the selfshielding IS_ABSORPTION is on
+compute the H2 selfshielding factor and extrapolate for extreme values of NH2 then set XK(H2)=2.54D-11*TETABIS*UV_FLUX
+compute the CO selfshielding factor with a saturation value then set XK(CO)=1.03D-10*TETABIS1*TETABIS2*TETABIS3*UV_FLUX
+
+if there is accretion and on-grain eactions (IS_GRAIN_REACTIONS switch) :
+
+for ITYPE=99 reactions, compute accretion rates TINACC and set XK(J)=A(J)*XJ(J)*TINACC(JSP1(J))/Y(JSP1(J))/GTODN
+
+for ITYPE=14 reactions
+calculate activation energy ACTIV, and choose the fastest way of reacting between classical and tunneling
+check for JH or JH2 in the reagents (the only tunneling species - others are too heavy-)
+choose the fastest diffusion rate out of thermal, QM1 and QM2
+modify rates according to the IMODH switch
+Modify rates (RDIF1 & RDIF2) according to their own evap/acc rates
+call MODIF
+set XK(J)=A(J)*XJ(J)*BARR*DIFF*GTODN/XNT
+!Allow only 1 monolayer of each to react (Not used for the time being)
+
+for ITYPE=17 reactions
+set XK(J)=A(J)*CR_IONISATION_RATE*CRA
+!Allow only 1 monolayer of each to react (Not used for the time being)
+
+for ITYPE=18 reactions
+set XK(J)=A(J)*CR_IONISATION_RATE*CRB
+!Allow only 1 monolayer of each to react (Not used for the time being)
+
+for ITYPE=19-20 reactions
+set XK(J)=A(J)*EXP(-C(J)*TAU)*UV_FLUX
+!Allow only 1 monolayer of each to react (Not used for the time being)
+
+
+disabling reaction by type loop (use it for testing)
+
+
+for H2 on-grain production
+set XK(j)=XJ(j)*A(j)*(T300**B(j))*GTODN/XNT/Y(JSP1(j))
+
+set too small rate coefficients to 0
+
+
+========MODIF============================================				nautilus.f90
+(J,IMOD1,IMOD2,BARR,YMOD1,YMOD2)
+!!compare evaporation and accretion rates
+
+check the value of t_acc/t_evap = TINEVA/TINACC
+assign the max rates out of TINEVA and TINACC
+Species rate to compare chosen by fastest diffusion rate
+
+
+
+========FCHEMVW==========================================				nls_odes.f90
+========JAC==============================================				nautilus.f90
+(N,T,Y,J,IAN,JAN,PDJ)
+
+========zdiffusion=======================================				nls_diffusion.f90
+========nothinghappens===================================				nls_diffusion.f90
+========crank============================================				nls_diffusion.f90
+========euler============================================				nls_diffusion.f90
+========DUMMY============================================				nautilus.f90
+! Dummy jacobians when the code is run with mf=222
+! Not to use unless, the solver has big problems converging
+========WRITE1D==========================================				nls_io.f90
+========RATES1D==========================================				nls_io.f90
+========WRITETAIL========================================				nls_io.f90

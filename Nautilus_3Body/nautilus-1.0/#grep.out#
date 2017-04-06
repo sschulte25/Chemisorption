@@ -1,0 +1,49 @@
+global_variables.f90:95:integer, allocatable, dimension(:,:) :: species_composition !< dim(NB_PRIME_ELEMENTS,nb_species) number of atom of each element composition the given species.
+global_variables.f90:602:allocate(species_composition(NB_PRIME_ELEMENTS,nb_species))
+global_variables.f90:603:species_composition(1:NB_PRIME_ELEMENTS,nb_species) = 0
+global_variables.f90~:95:integer, allocatable, dimension(:,:) :: species_composition !< dim(NB_PRIME_ELEMENTS,nb_species) number of atom of each element composition the given species.
+global_variables.f90~:602:allocate(species_composition(NB_PRIME_ELEMENTS,nb_species))
+qglobal_variables.f90~:603:species_composition(1:NB_PRIME_ELEMENTS,nb_species) = 0
+input_output.f90:242:integer, dimension(NB_PRIME_ELEMENTS, nb_species_for_gas) :: gas_species_composition 
+input_output.f90:246:integer, dimension(NB_PRIME_ELEMENTS, nb_species_for_grain) :: grain_species_composition 
+input_output.f90:271:      read(line, '(A11,i3,13(I3))')  gas_species_label(I),ICG1(I),(gas_species_composition(K,I),K=1,NB_PRIME_ELEMENTS) 
+input_output.f90:305:      read(line, '(A11,i3,13(I3))')  surface_species_label(I),ICG2(I),(grain_species_composition(K,I),K=1,NB_PRIME_ELEMENTS) 
+input_output.f90:322:    species_composition(K,I)=gas_species_composition(K,I)
+input_output.f90:330:    species_composition(K,nb_species_for_gas+I)=grain_species_composition(K,I)
+input_output.f90~:242:integer, dimension(NB_PRIME_ELEMENTS, nb_species_for_gas) :: gas_species_composition 
+input_output.f90~:246:integer, dimension(NB_PRIME_ELEMENTS, nb_species_for_grain) :: grain_species_composition 
+input_output.f90~:271:      read(line, '(A11,i3,13(I3))')  gas_species_label(I),ICG1(I),(gas_species_composition(K,I),K=1,NB_PRIME_ELEMENTS) 
+input_output.f90~:305:      read(line, '(A11,i3,13(I3))')  surface_species_label(I),ICG2(I),(grain_species_composition(K,I),K=1,NB_PRIME_ELEMENTS) 
+input_output.f90~:322:    species_composition(K,I)=gas_species_composition(K,I)
+input_output.f90~:329:    species_composition(K,nb_species_for_gas+I)=grain_species_composition(K,I)
+Binary file nautilus matches
+nautilus_help.man:122:species_composition				tab(NB_PRIME_ELEMENTS:nb_species)    number of elements that compose the species 
+nautilus_help.man:276:PRIME_ELEMENT_IDX				tab(NB_PRIME_ELEMENTS)			corresponding lines (in species_composition) of the NB_PRIME_ELEMENTS elements
+nautilus_help.man:277:ISPE									corresponding line (in species_composition) of the electron
+nautilus_help.man:571:Re-arrange order of elements to match species_composition columns (reactions file), the first element is H, then He, then ...
+nautilus_help.man:573:set elements' masses (in amu) of the species_composition elements in amu
+nautilus_main.f90:66:        if (I.NE.PRIME_ELEMENT_IDX(K)) elemental_abundance(K)=elemental_abundance(K)+species_composition(K,I)*temp_abundances(I)
+nautilus_main.f90:138:    el_abundances(j) = el_abundances(j) + species_composition(j,i) * all_abundances(i)
+nautilus_main.f90:314:          left_sum = left_sum + species_composition(element,REACTION_COMPOUNDS_ID(compound, reaction))
+nautilus_main.f90:322:          right_sum = right_sum + species_composition(element,REACTION_COMPOUNDS_ID(compound, reaction))
+nautilus_main.f90:853:    KSUM=KSUM+species_composition(K,J)
+nautilus_main.f90:877:! --- Re-arrange order of elements to match species_composition columns (reactions file)
+nautilus_main.f90:879:  if (species_composition(J,PRIME_ELEMENT_IDX(J)).NE.1) then
+nautilus_main.f90:881:      if (species_composition(J,PRIME_ELEMENT_IDX(K)).EQ.1) then
+nautilus_main.f90:905:    MSUM=MSUM+elemental_mass(K)*species_composition(K,I) 
+nautilus_main.f90:1558:      ATOMS=ATOMS+species_composition(K,N4)
+nautilus_main.f90~:66:        if (I.NE.PRIME_ELEMENT_IDX(K)) elemental_abundance(K)=elemental_abundance(K)+species_composition(K,I)*temp_abundances(I)
+nautilus_main.f90~:138:    el_abundances(j) = el_abundances(j) + species_composition(j,i) * all_abundances(i)
+nautilus_main.f90~:314:          left_sum = left_sum + species_composition(element,REACTION_COMPOUNDS_ID(compound, reaction))
+nautilus_main.f90~:322:          right_sum = right_sum + species_composition(element,REACTION_COMPOUNDS_ID(compound, reaction))
+nautilus_main.f90~:852:    KSUM=KSUM+species_composition(K,J)
+nautilus_main.f90~:876:! --- Re-arrange order of elements to match species_composition columns (reactions file)
+nautilus_main.f90~:878:  if (species_composition(J,PRIME_ELEMENT_IDX(J)).NE.1) then
+nautilus_main.f90~:880:      if (species_composition(J,PRIME_ELEMENT_IDX(K)).EQ.1) then
+nautilus_main.f90~:904:    MSUM=MSUM+elemental_mass(K)*species_composition(K,I) 
+nautilus_main.f90~:1557:      ATOMS=ATOMS+species_composition(K,N4)
+Binary file nautilus_major_reactions matches
+Binary file nautilus_outputs matches
+Binary file nautilus_rates matches
+Binary file nautilus_select_outputs matches
+Binary file nautilus_trace_major matches
